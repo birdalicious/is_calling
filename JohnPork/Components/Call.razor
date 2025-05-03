@@ -13,10 +13,14 @@
 	</div>
 </div>
 
+<AudioHelper @ref="_audio" Src="./assets/audio/femur.mp3" Type="audio/mpeg" />
+
 @code {
 	private int _seconds = 0;
 
 	private Timer _timer;
+	private Timer _audioDelay;
+	private AudioHelper _audio;
 
 	[Parameter]
 	public EventCallback OnCallEnd { get; set; }
@@ -26,21 +30,24 @@
 		return $"{_seconds / 60:00}:{_seconds % 60:00}";
 	}
 
-	protected override void OnAfterRender(bool firstRender)
+	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if(firstRender)
 		{
 			_timer = new Timer(_ => { _seconds++; StateHasChanged(); }, null, 0, 1000);
+			_audioDelay = new Timer(async _ => await _audio.Start(), null, 1000, 0);
 		}
 	}
 
 	public void Dispose()
 	{
 		_timer.Dispose();
+		_audioDelay.Dispose();
 	}
 
 	private async Task EndCall()
 	{
+		await _audio.Stop();
 		await OnCallEnd.InvokeAsync();
 	}
 }

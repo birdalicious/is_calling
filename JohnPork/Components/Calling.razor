@@ -17,20 +17,7 @@
 	</div>
 </div>
 
-<audio id="sound" loop>
-	<source src="./assets/audio/calling.mp3" type="audio/mpeg">
-</audio>
-
-<script>
-	window.PlaySound = function () {
-		document.getElementById('sound').play();
-	}
-
-	window.StopSound = function () {
-		document.getElementById('sound').pause();
-		document.getElementById('sound').currentTime = 0;
-	}
-</script>
+<AudioHelper @ref="_audio" Src="./assets/audio/calling.mp3" Type="audio/mpeg" />
 
 @code {
 	[Inject]
@@ -42,6 +29,7 @@
 	[Parameter]
 	public EventCallback OnAccept { get; set; }
 
+	private AudioHelper _audio;
 	private bool _playing = false;
 
 	protected override async Task OnAfterRenderAsync(bool first)
@@ -59,20 +47,20 @@
 			return;
 		}
 
-		await JS.InvokeVoidAsync("PlaySound");
+		await _audio.Start();
 		_playing = true;
 	}
 
 	private async Task Accept()
 	{
-		await JS.InvokeVoidAsync("StopSound");
+		await _audio.Stop();
 		_playing = false;
 		await OnAccept.InvokeAsync();
 	}
 
 	private async Task Decline()
 	{
-		await JS.InvokeVoidAsync("StopSound");
+		await _audio.Stop();
 		_playing = false;
 		await OnDecline.InvokeAsync();
 	}

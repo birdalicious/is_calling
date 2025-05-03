@@ -1,0 +1,35 @@
+﻿<audio id="sound" loop>
+	<source src="@Src" type="@Type">
+</audio>
+
+<script>
+	window.PlaySound = function () {
+		document.getElementById('sound').play();
+	}
+
+	window.StopSound = function () {
+		document.getElementById('sound').pause();
+		document.getElementById('sound').currentTime = 0;
+	}
+</script>
+
+@code {
+	[Inject]
+	public IJSRuntime JS { get; set; }
+
+	[Parameter]
+	public string Src { get; set; }
+
+	[Parameter]
+	public string Type { get; set; }
+
+	public async Task Start()
+	{
+		await JS.InvokeVoidAsync("PlaySound");
+	}
+
+	public async Task Stop()
+	{
+		await JS.InvokeVoidAsync("StopSound");
+	}
+}
