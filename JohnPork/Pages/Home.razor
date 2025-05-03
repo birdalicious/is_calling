@@ -3,45 +3,32 @@
 <PageTitle>Home</PageTitle>
 
 <div class="home-page" @onclick="Start">
-	<div id="calling">
-	<h1>John Pork</h1>
-	<h2>is calling...</h2>
-	</div>
+	@if(_state == State.None) {
+		<p>Press to start</p>
+	}
 
-
-	<audio id="sound" loop>
-		<source src="/call.mp3" type="audio/mpeg">
-	</audio>
+	@if (_state == State.Calling)
+	{
+		<JohnPork.Components.Calling OnDecline="() => _state = State.Declined" OnAccept="() => _state = State.Accepted"/>
+	}
 </div>
 
-<script>
-	window.PlaySound = function () {
-		document.getElementById('sound').play();
-	}
-
-	window.StopSound = function () {
-		document.getElementById('sound').pause();
-		document.getElementById('sound').currentTime = 0;
-	}
-</script>
-
 @code {
-	[Inject]
-	public IJSRuntime JS { get; set; }
-
-	private bool _playing = false;
-
-	private async Task Start()
+	private enum State
 	{
-		if (_playing)
-		{
-			await JS.InvokeVoidAsync("StopSound");
-		}
-		else
-		{
-			await JS.InvokeVoidAsync("PlaySound");
-		}
+		None,
+		Calling,
+		Declined,
+		Accepted,
+	}
 
-		_playing = !_playing;
+	private State _state = State.None;
+
+	private void Start()
+	{
+		if (_state != State.Calling)
+		{
+			_state = State.Calling;
+		}
 	}
 }

@@ -1,0 +1,79 @@
+﻿<div id="pork">
+	<div id="calling">
+		<h1>John Pork</h1>
+		<h2>is calling...</h2>
+	</div>
+
+	<div class="buttons">
+		<div id="decline" class="button" @onclick="Decline">
+			<img src="./end-call-icon.png" />
+			<p>Decline</p>
+		</div>
+
+		<div id="accept" class="button" @onclick="Accept">
+			<img src="./accept-call-icon.png" />
+			<p>Accept</p>
+		</div>
+	</div>
+</div>
+
+<audio id="sound" loop>
+	<source src="/call.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+	window.PlaySound = function () {
+		document.getElementById('sound').play();
+	}
+
+	window.StopSound = function () {
+		document.getElementById('sound').pause();
+		document.getElementById('sound').currentTime = 0;
+	}
+</script>
+
+@code {
+	[Inject]
+	public IJSRuntime JS { get; set; }
+
+	[Parameter]
+	public EventCallback OnDecline { get; set; }
+
+	[Parameter]
+	public EventCallback OnAccept { get; set; }
+
+	private bool _playing = false;
+
+	protected override async Task OnAfterRenderAsync(bool first)
+	{
+		if(first)
+		{
+			await Start();
+		}
+	}
+
+	public async Task Start()
+	{
+		if (_playing)
+		{
+			return;
+		}
+
+		await JS.InvokeVoidAsync("PlaySound");
+		_playing = true;
+	}
+
+	private async Task Accept()
+	{
+		await JS.InvokeVoidAsync("StopSound");
+		_playing = false;
+		await OnAccept.InvokeAsync();
+	}
+
+	private async Task Decline()
+	{
+		await JS.InvokeVoidAsync("StopSound");
+		_playing = false;
+		await OnDecline.InvokeAsync();
+	}
+}
