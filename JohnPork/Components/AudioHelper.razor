@@ -1,4 +1,4 @@
-﻿<audio id="sound" loop>
+﻿<audio id="sound" @attributes=_attributes>
 	<source src="@Src" type="@Type">
 </audio>
 
@@ -22,6 +22,14 @@
 
 	[Parameter]
 	public string Type { get; set; }
+
+	[Parameter]
+	public bool Loop { get; set; } = false;
+
+	private Dictionary<string, object> _attributes => new Dictionary<string, object>
+		{
+			["loop"] = Loop,
+		};
 
 	public async Task Start()
 	{
