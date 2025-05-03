@@ -1,0 +1,46 @@
+﻿@implements IDisposable
+
+<div id="background">
+	<div id="profile">
+		<img src="./assets/images/john-pork-1.jpg" />
+		<h2>John Pork</h2>
+
+		<h5>@GetTime()</h5>
+	</div>
+
+	<div class="button" @onclick="EndCall">
+		<img src="./assets/images/end-call-icon.png" />
+	</div>
+</div>
+
+@code {
+	private int _seconds = 0;
+
+	private Timer _timer;
+
+	[Parameter]
+	public EventCallback OnCallEnd { get; set; }
+
+	private string GetTime()
+	{
+		return $"{_seconds / 60:00}:{_seconds % 60:00}";
+	}
+
+	protected override void OnAfterRender(bool firstRender)
+	{
+		if(firstRender)
+		{
+			_timer = new Timer(_ => { _seconds++; StateHasChanged(); }, null, 0, 1000);
+		}
+	}
+
+	public void Dispose()
+	{
+		_timer.Dispose();
+	}
+
+	private async Task EndCall()
+	{
+		await OnCallEnd.InvokeAsync();
+	}
+}
